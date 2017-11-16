@@ -1,0 +1,67 @@
+FROM alpine:edge
+
+ENV LUA_VERSION 5.1
+# ENV LUAROCKS_VERSION 2.4.3
+ENV LOVE_VERSION 0.10.2
+
+# Update apk index
+RUN apk update
+# Install packages necessary for Lua, Luarocks.
+RUN apk add lua${LUA_VERSION} \
+      lua${LUA_VERSION}-dev \
+      luarocks \
+      && alias lua=lua${LUA_VERSION} \
+      && alias luarocks=luarocks-${LUA_VERSION}
+
+# Build dependencies.
+RUN apk add build-base \
+      unzip \
+      curl \
+      git \
+      libzip-dev
+
+RUN luarocks install --server=http://luarocks.org/dev lua-zip \
+      && luarocks install love-release
+
+# Build Luarocks.
+# RUN cd /tmp \
+      # && curl -L https://github.com/luarocks/luarocks/archive/${LUAROCKS_VERSION}.tar.gz \
+      # | tar xz \
+      # && cd luarocks-${LUAROCKS_VERSION} \
+      # && ./configure \
+      # && make build install \
+      # && cd /tmp \
+      # && rm -r ./luarocks-${LUAROCKS_VERSION}
+
+ENV PHYSFS_VERSION 3.0.1
+RUN apk add cmake
+RUN cd /tmp \
+      && curl -L https://icculus.org/physfs/downloads/physfs-${PHYSFS_VERSION}.tar.bz2 \
+      | tar xj \
+      && cmake physfs-${PHYSFS_VERSION} \
+      && make \
+      && make install
+
+RUN apk add luajit-dev \
+      freetype-dev \
+      openal-soft-dev \
+      libmodplug-dev \
+      libvorbis-dev \
+      libtheora-dev \
+      mpg123-dev \
+      sdl2-dev \
+      directfb-dev \
+      libx11-dev
+      
+RUN cd /tmp \
+      && curl -L https://bitbucket.org/rude/love/downloads/love-${LOVE_VERSION}-linux-src.tar.gz \
+      | tar xz \
+      && cd love-${LOVE_VERSION} \
+      && ./configure --with-sdl-prefix=/usr \
+      && make \
+      && make install
+
+RUN cd /tmp && rm -r *
+      # && cd ${WORKDIR} \
+      # && rm -r /tmp/love-${LOVE_VERSION}
+WORKDIR /usr/src/app

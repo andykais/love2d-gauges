@@ -1,0 +1,10 @@
+theme_id: collegeai
+title: "CollegeAI's Theme"
+color_palette:
+  primary: blue
+  accent: pink
+  dull: black
+images:
+  wide_needle: assets/dial.png
+  background: assets/background.png,
+  half_circle: assets/gauge.png
